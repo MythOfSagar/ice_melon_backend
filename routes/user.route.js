@@ -17,17 +17,17 @@ userRouter.post("/signIn", async (req, res) => {
 
     if (userByEmail) {
       res.sendStatus(409).send({
-        error: "Email already exists. Please choose a different Email.",
+        "error": "Email already exists. Please choose a different Email.",
       });
     } else if (userByUserName) {
       res.sendStatus(409).send({
-        error: "Username already exists. Please choose a different Username.",
+        "error": "Username already exists. Please choose a different Username.",
       });
     } else {
       bcrypt.hash(password, +process.env.SaltRounds, async (err, hash) => {
         if (err) {
           res.sendStatus(500).send({
-            error: "Error Occurred, Please try again",
+            "error": "Error Occurred, Please try again",
           });
         } else {
           const newUser = new UserModel({ userName, email, password: hash });
@@ -38,7 +38,7 @@ userRouter.post("/signIn", async (req, res) => {
     }
   } catch (err) {
     res.sendStatus(500).send({
-      error: "Error Occurred, Please try again",
+      "error": "Error Occurred, Please try again",
     });
   }
 });
