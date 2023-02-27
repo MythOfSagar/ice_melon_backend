@@ -3,7 +3,6 @@ const { UserModel } = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-
 require("dotenv").config();
 
 const userRouter = Router();
@@ -17,17 +16,17 @@ userRouter.post("/signIn", async (req, res) => {
 
     if (userByEmail) {
       res.sendStatus(409).send({
-        "error": "Email already exists. Please choose a different Email.",
+        error: "Email already exists. Please choose a different Email.",
       });
     } else if (userByUserName) {
       res.sendStatus(410).send({
-        "error": "Username already exists. Please choose a different Username.",
+        error: "Username already exists. Please choose a different Username.",
       });
     } else {
       bcrypt.hash(password, +process.env.SaltRounds, async (err, hash) => {
         if (err) {
           res.sendStatus(500).send({
-            "error": "Error Occurred, Please try again",
+            error: "Error Occurred, Please try again",
           });
         } else {
           const newUser = new UserModel({ userName, email, password: hash });
@@ -38,35 +37,62 @@ userRouter.post("/signIn", async (req, res) => {
     }
   } catch (err) {
     res.sendStatus(500).send({
-      "error": "Error Occurred, Please try again",
+      error: "Error Occurred, Please try again",
+    });
+  }
+});
+
+userRouter.put("/addtofavourite/:userId", async (req, res) => {
+  const { blogId } = req.body;
+  const { userId } = req.params;
+
+  console.log(blogId,userId)
+
+  try {
+
+    const singleUser = await UserModel.findById(userId.substring(1));
+    const myFavourites =singleUser.myFavourites
+
+    await UserModel.findByIdAndUpdate(userId.substring(1),{myFavourites: {
+      ...myFavourites,[blogId]: true
+    }});
+    res.sendStatus(200).send("Added to Favourites");
+  } catch (err) {
+    res.sendStatus(500).send({
+      error: "Error Occurred, Please try again",
     });
   }
 });
 
 userRouter.post("/logIn", async (req, res) => {
-  const { email, password ,userName } = req.body;
+  const { email, password, userName } = req.body;
 
   try {
-    const findUser = await UserModel.findOne({$or:[{userName},{email}]});
+    const findUser = await UserModel.findOne({
+      $or: [{ userName }, { email }],
+    });
     if (findUser) {
       bcrypt.compare(password, findUser.password, function (err, result) {
         if (result) {
-          const token = jwt.sign({ key: findUser.email }, process.env.encryption);
+          const token = jwt.sign(
+            { key: findUser.email },
+            process.env.encryption
+          );
           res.sendStatus(200).send(token);
         } else {
           res.sendStatus(401).send({
-            "error": "Wrong password.",
+            error: "Wrong password.",
           });
         }
       });
     } else {
       res.sendStatus(402).send({
-        "error": "Email/UserName not Found.",
+        error: "Email/UserName not Found.",
       });
     }
   } catch (err) {
     res.sendStatus(500).send({
-      "error": "Error Occurred, Please try again",
+      error: "Error Occurred, Please try again",
     });
   }
 });
