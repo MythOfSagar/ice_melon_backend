@@ -8,18 +8,13 @@ const app = express();
 
 app.use(cors({origin:'*'}))
 
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', '*');
-//   next();
-// });
-
 app.use(express.json());
 
 app.use("/users", userRouter);
 app.use("/blogs", blogRouter);
 
 app.get("/", (req, res) => {
-  res.send("ice_melon_Home");
+  res.send("ICE MELON");
 });
 
 app.listen(process.env.PORT, async () => {

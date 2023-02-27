@@ -20,7 +20,7 @@ userRouter.post("/signIn", async (req, res) => {
         "error": "Email already exists. Please choose a different Email.",
       });
     } else if (userByUserName) {
-      res.sendStatus(409).send({
+      res.sendStatus(410).send({
         "error": "Username already exists. Please choose a different Username.",
       });
     } else {
@@ -55,18 +55,18 @@ userRouter.post("/logIn", async (req, res) => {
           res.sendStatus(200).send(token);
         } else {
           res.sendStatus(401).send({
-            error: "Wrong password.",
+            "error": "Wrong password.",
           });
         }
       });
     } else {
-      res.sendStatus(401).send({
-        error: "Email not Found.",
+      res.sendStatus(402).send({
+        "error": "Email not Found.",
       });
     }
   } catch (err) {
     res.sendStatus(500).send({
-      error: "Error Occurred, Please try again",
+      "error": "Error Occurred, Please try again",
     });
   }
 });
