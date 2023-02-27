@@ -44,14 +44,14 @@ userRouter.post("/signIn", async (req, res) => {
 });
 
 userRouter.post("/logIn", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password ,userName } = req.body;
 
   try {
-    const findUser = await UserModel.findOne({ email });
+    const findUser = await UserModel.findOne({$or:[{userName},{email}]});
     if (findUser) {
       bcrypt.compare(password, findUser.password, function (err, result) {
         if (result) {
-          const token = jwt.sign({ key: email }, process.env.encryption);
+          const token = jwt.sign({ key: findUser.email }, process.env.encryption);
           res.sendStatus(200).send(token);
         } else {
           res.sendStatus(401).send({
@@ -61,7 +61,7 @@ userRouter.post("/logIn", async (req, res) => {
       });
     } else {
       res.sendStatus(402).send({
-        "error": "Email not Found.",
+        "error": "Email/UserName not Found.",
       });
     }
   } catch (err) {
