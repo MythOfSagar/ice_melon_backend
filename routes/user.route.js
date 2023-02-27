@@ -42,47 +42,6 @@ userRouter.post("/signIn", async (req, res) => {
   }
 });
 
-userRouter.put("/addtofavourite/:userId", async (req, res) => {
-  const { blogId } = req.body;
-  const { userId } = req.params;
-
-  console.log(blogId,userId)
-
-  try {
-
-    const singleUser = await UserModel.findById(userId.substring(1));
-    const myFavourites =singleUser.myFavourites
-
-    await UserModel.findByIdAndUpdate(userId.substring(1),{myFavourites: {
-      ...myFavourites,[blogId]: true
-    }});
-    res.sendStatus(200).send("Added to Favourites");
-  } catch (err) {
-    res.sendStatus(500).send({
-      error: "Error Occurred, Please try again",
-    });
-  }
-});
-
-userRouter.get("/favourite/:userId", async (req, res) => {
-  const { blogId } = req.body;
-  const { userId } = req.params;
-
-  console.log(blogId,userId)
-
-  try {
-
-    const singleUser = await UserModel.findById(userId.substring(1));
-    const myFavourites =singleUser.myFavourites
-
-  
-    res.sendStatus(200).send(myFavourites);
-  } catch (err) {
-    res.sendStatus(500).send({
-      error: "Error Occurred, Please try again",
-    });
-  }
-});
 
 userRouter.post("/logIn", async (req, res) => {
   const { email, password, userName } = req.body;
