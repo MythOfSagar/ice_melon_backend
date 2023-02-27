@@ -97,4 +97,26 @@ blogRouter.put("/addtofavourite/:blogId", async (req, res) => {
   }
 });
 
+blogRouter.put("/removefromfavourite/:blogId", async (req, res) => {
+  const { userId } = req.body;
+  const { blogId } = req.params;
+
+  console.log(blogId, userId);
+
+  try {
+    const singleBlog = await BlogModel.findById(blogId);
+    const favourites = singleBlog.favourites;
+
+    await BlogModel.findByIdAndUpdate(blogId, {
+      favourites: { ...favourites, [userId]: false },
+    });
+
+    res.sendStatus(200).send("Removed from Favourites");
+  } catch (err) {
+    res.sendStatus(500).send({
+      error: "Error Occurred, Please try again",
+    });
+  }
+});
+
 module.exports = { blogRouter };
