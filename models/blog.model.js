@@ -4,9 +4,9 @@ const blogSchema = mongoose.Schema({
   title: String,
   date: Date,
   content: String,
-  userName:String,
+  creator: String,
   category: String,
-  favourites:Object
+  favourites: Object,
 });
 
 const BlogModel = mongoose.model("blogs", blogSchema);

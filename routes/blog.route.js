@@ -1,7 +1,42 @@
 const { Router } = require("express");
+const  auth = require("../middleware/auth.middleware");
 
 const blogRouter = Router();
 const { BlogModel } = require("../models/blog.model");
+
+blogRouter.get("/", async (req, res) => {
+
+  const {category}=req.query
+
+  try {
+    let allBlogs
+    if(category){
+      allBlogs = await BlogModel.find({category});
+    }else{
+      allBlogs = await BlogModel.find();
+    }
+   
+    res.status(200).send(allBlogs);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+
+
+blogRouter.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const singleBlog = await BlogModel.findById(id);
+
+    res.status(200).send(singleBlog);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+});
+
+
+blogRouter.use(auth)
 
 blogRouter.post("/", async (req, res) => {
   const newBlogDetails = req.body;
@@ -15,42 +50,20 @@ blogRouter.post("/", async (req, res) => {
   }
 });
 
-blogRouter.get("/", async (req, res) => {
 
-  try {
-    const allBlogs = await BlogModel.find();
-
-    res.status(200).send(allBlogs);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
-
-blogRouter.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const singleBlog = await BlogModel.findById(id);
-
-    res.status(200).send(singleBlog);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
 
 blogRouter.get("/favourites/:id", async (req, res) => {
   const { id } = req.params;
   try {
 
     const favouritesBlog = await BlogModel.find({favourites:{[id]:true}});
-
-
     res.status(200).send(favouritesBlog);
   } catch (err) {
     res.status(500).send(err);
   }
 });
 
-blogRouter.delete("/:id", async (req, res) => {
+blogRouter.delete("/delete/:id", async (req, res) => {
   const { id } = req.params;
   console.log(id);
 
@@ -62,7 +75,7 @@ blogRouter.delete("/:id", async (req, res) => {
   }
 });
 
-blogRouter.patch("/:id", async (req, res) => {
+blogRouter.patch("/edit/:id", async (req, res) => {
   const { id } = req.params;
   const udatedDetails = req.body;
 
@@ -75,45 +88,44 @@ blogRouter.patch("/:id", async (req, res) => {
   }
 });
 
-blogRouter.put("/addtofavourite/:blogId", async (req, res) => {
-  const { userId } = req.body;
+blogRouter.patch("/addtofavourite/:blogId", async (req, res) => {
+  const { creator } = req.body;
   const { blogId } = req.params;
 
-  console.log(blogId, userId);
+  console.log(req.body);
 
   try {
     const singleBlog = await BlogModel.findById(blogId);
     const favourites = singleBlog.favourites;
 
     await BlogModel.findByIdAndUpdate(blogId, {
-      favourites: { ...favourites, [userId]: true },
+      favourites: { ...favourites, [creator]: true },
     });
 
-    res.sendStatus(200).send("Added to Favourites");
+    res.status(200).send("Added to Favourites");
   } catch (err) {
-    res.sendStatus(500).send({
+    res.status(500).send({
       error: "Error Occurred, Please try again",
     });
   }
 });
 
-blogRouter.put("/removefromfavourite/:blogId", async (req, res) => {
-  const { userId } = req.body;
-  const { blogId } = req.params;
+blogRouter.patch("/removefromfavourite/:blogId", async (req, res) => {
+  const { creator } = req.body;
+  const { blogId } = req.params; 
 
-  console.log(blogId, userId);
+  console.log('Got in Removing');
 
   try {
     const singleBlog = await BlogModel.findById(blogId);
     const favourites = singleBlog.favourites;
 
     await BlogModel.findByIdAndUpdate(blogId, {
-      favourites: { ...favourites, [userId]: false },
+      favourites: { ...favourites, [creator]: false },
     });
-
-    res.sendStatus(200).send("Removed from Favourites");
+    res.status(200).send("Removed from Favourites");
   } catch (err) {
-    res.sendStatus(500).send({
+    res.status(500).send({
       error: "Error Occurred, Please try again",
     });
   }
