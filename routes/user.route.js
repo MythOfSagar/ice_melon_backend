@@ -58,7 +58,7 @@ userRouter.post("/logIn", async (req, res) => {
             process.env.encryption
           );
          
-          res.status(200).send({"token":token,"userId":findUser._id});
+          res.status(200).send({"token":token,"userId":findUser._id,userName:findUser.userName});
         } else {
           res.status(401).send({
             error: "Wrong password.",
